@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/form.css">
+    <title>Update Member Form</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+     .search-container {
+            position: relative;
+        }
+        .search-icon{
+            cursor:pointer;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 22px;
+            color: #888;
+        }
+
+    </style>
+</head>
+<body>
+    <form class="container" id="addMemberForm">
+        <h5 class="heading">Enter Member Details</h5>
+        <label>Enter member id:</label>
+        <div class="search-container">
+            <input type="text" id="memberId" placeholder="Enter member id" required>
+            <span class="search-icon" onclick="fetchMemberDetails()">🔍</span>
+        </div>
+        <label for="firstName">Enter First Name:</label>
+        <input type="text" placeholder="Enter first name" id="firstName" required>
+        
+        <label for="lastName">Enter Last Name:</label>
+        <input type="text" placeholder="Enter last name" id="lastName" required>
+        
+        <label for="email">Enter Email ID:</label>
+        <div class="input-container">
+            <input type="email" placeholder="Enter email id" id="email" required>
+            <span class="email-icon"></span>
+        </div>
+        <label for="phoneNumber">Enter Phone Number:</label>
+        <div class="input-container">
+            <input type="tel" placeholder="Enter phone number" id="phoneNumber" required>
+            <span class="phone-icon"></span>
+        </div>
+
+        <label for="startDate">Enter Start Date:</label>
+        <input type="date" id="startDate" required>
+        <label for="endDate">Enter End Date:</label>
+        <input type="date" id="endDate" required>
+        <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+        <button type="submit" onclick="formSubmit()">Submit</button>
+    </form>
+    
+    <script>
+        async function fetchMemberDetails() {
+            const memberId = document.getElementById('memberId').value;
+            const url = `http://localhost:8081/api/getMemberById/${memberId}`;
+
+            try {
+                const response = await fetch(url,{
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+            });
+                if(response.status===401){
+                        alert("Your session has expired. Please log in again.");
+                        window.location.href="login.html";
+                        return;
+                }   
+                if (response.ok) {
+                    const member = await response.json();
+                    displayMemberDetails(member);
+                } else {
+                    console.log("response error")
+                }
+                if(response.status==401){
+                    window.location.href="login.html";
+                }
+            } catch (error) {
+                console.error('Error fetching member details:', error);
+            }
+        }
+
+        function displayMemberDetails(member) {
+            document.getElementById("firstName").value = member.firstName || '';
+            document.getElementById("lastName").value = member.lastName || '';
+            document.getElementById("email").value = member.emailId || ''; 
+            document.getElementById("phoneNumber").value = member.phoneNumber || '';
+            document.getElementById("startDate").value = member.startDate || '';
+            document.getElementById("endDate").value = member.endDate || '';
+        }
+        
+        async function formSubmit() {
+            event.preventDefault();
+            const memberId = document.getElementById('memberId').value;
+            const formData = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                emailId: document.getElementById('email').value,
+                phoneNumber: document.getElementById('phoneNumber').value,
+                startDate: document.getElementById('startDate').value,
+                endDate: document.getElementById('endDate').value
+            };
+            const apiUrl=`http://localhost:8081/api/update/${memberId}`;
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    document.getElementById("addMemberForm").reset();
+                    alert("Member updated successfully!");
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Error updating member.'}`);
+                }
+            } 
+            catch (error) {
+                console.error("Error:", error);
+            }
+        }
+            document.getElementById("email").addEventListener("input", function(event) {
+            const emailField = event.target;
+            const emailPattern = /^[a-zA-Z0-9+._%+-]+@gmail\.com$/;
+            const statusIcon = document.querySelector(".email-icon");
+            
+            if (emailField.value === "") {
+                statusIcon.textContent = "";
+                emailField.classList.remove('success', 'error');
+            } else if (!emailPattern.test(emailField.value)) {
+                emailField.classList.add('error');
+                emailField.classList.remove('success');
+                statusIcon.textContent = "✖";
+                statusIcon.style.color = "red";
+            } else {
+                emailField.classList.remove('error');
+                emailField.classList.add('success');
+                statusIcon.textContent = '✔';
+                statusIcon.style.color = 'green';
+            }
+        });
+            document.getElementById("phoneNumber").addEventListener("input", function(event) {
+            const phoneNumberField = event.target;
+            const phoneNumberPattern = /^[0-9]{10}$/;
+            const statusIcon = document.querySelector(".phone-icon");
+            
+            if (phoneNumberField.value === "") {
+                statusIcon.textContent = "";      
+                phoneNumberField.classList.remove("error", "success");                
+            } else if (!phoneNumberPattern.test(phoneNumberField.value)) {
+                phoneNumberField.classList.add("error");
+                phoneNumberField.classList.remove("success");
+                statusIcon.textContent = "✖";
+                statusIcon.style.color = "red";              
+            } else {
+                phoneNumberField.classList.remove("error");
+                phoneNumberField.classList.add("success");
+                statusIcon.textContent = '✔';
+                statusIcon.style.color = "green";              
+            }
+        });
+        function goBack(){
+            window.location.href = "gym.html";
+        }
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

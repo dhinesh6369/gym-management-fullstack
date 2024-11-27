@@ -1,0 +1,91 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-image: linear-gradient(-225deg, #E3FDF5 0%, #FFE6FA 100%);
+}
+.container {
+    border: 1px solid black;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
+    padding: 60px;
+}
+.heading {
+    font-size: 18px;
+    padding-bottom: 10px;
+}
+label {
+    padding: 10px;
+    display: block; 
+}
+input {
+    padding: 6px;
+    font-size: 15px;
+    border: 1px solid #ccc; 
+    outline: none;
+    margin: 5px 0; 
+    width: 100%; 
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1); 
+}
+
+button {
+    cursor: pointer;
+    padding: 10px;
+    font-size: 15px;
+    margin-top: 20px;
+    box-shadow: rgba(0, 0, 0, 0.15) 0px 3px 3px 0px;
+    transition: background-color 0.4s ease, transform 0.4s ease; 
+    border: none;
+    outline: none;
+    background-color: #4CAF50;
+    color: white;
+}
+button:hover {
+    background-color: #1e90ff; 
+    transform: scale(1.05);
+}
+
+.input-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.email-icon {
+    position: absolute;
+    right: 10px; 
+    font-size: 1.2em;
+    pointer-events: none;
+}
+.firstname-icon{
+    position: absolute;
+    top:270px;
+    left:1010px;
+    font-size: 1.2em;
+    pointer-events: none;
+}
+.phone-icon {
+    position: absolute;
+    right: 10px; 
+    font-size: 1.2em;
+    pointer-events: none;
+}
+.error {  
+    border-color: red;
+}
+
+.success {
+    border-color: green;
+}
+#backBtn{
+    margin-right: 10px;
+}

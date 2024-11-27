@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juju</title>
+    <style>
+        *{
+            margin: 0;
+            border: 0;
+            box-sizing: border-box;
+        }
+        body{
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        input[type="text"]{
+            border: 1px solid black;
+            padding: 5px;
+            font-size: 15px;
+            outline: none;
+        }
+        
+        #submitBtn{
+            padding: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <form onsubmit="storeDetails()"> 
+        <div>
+            <label>Name : </label>
+            <input type="text" placeholder="Enter name" id="name">
+        </div>
+        <button type="submit" id="submitBtn">Submit</button>
+    </form>
+    <script>
+        async function storeDetails(){
+             
+        }
+    </script>
+</body>
+</html>

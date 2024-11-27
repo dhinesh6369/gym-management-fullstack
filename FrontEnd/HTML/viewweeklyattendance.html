@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weekly Attendance</title>
+    <link rel="stylesheet" href="../CSS/viewdailyattendance.css">
+</head>
+<body>
+    <div class="div-container">
+        <form class="container" onsubmit="formSubmit(event)">
+            <h5 class="heading">Enter Member Details</h5>
+            <label>Enter Member ID</label>
+            <input type="number" placeholder="Enter member id" id="memberId" required>
+
+            <label for="startDate">Enter Start Date:</label>
+            <input type="date" id="startDate" required>
+            
+            <label for="endDate">Enter End Date:</label>
+            <input type="date" id="endDate" required>
+            <button id="backBtn" class="back-btn" onclick="goBackpage()">Back</button>
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    <div id="attendanceList" style="display: none;"></div>
+    <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+    
+    <script>
+        function goBackpage() {
+            window.location.href = "gym.html";
+        }
+        const formSubmit = async (event) => {
+            document.querySelector(".div-container").style.display="none";
+            event.preventDefault();
+            const attendanceList = document.getElementById("attendanceList");
+            const backBtn = document.getElementById("backBtn");
+            const container = document.querySelector(".container");
+
+            container.style.display = "none";
+            attendanceList.style.display = "";
+
+            try {
+                const memberId = document.getElementById("memberId").value;
+                const startDate = document.getElementById("startDate").value;
+                const endDate = document.getElementById("endDate").value;
+
+                const apiUrl = `http://localhost:8081/api/attendance/weekly/${memberId}?startDate=${startDate}&endDate=${endDate}`;    
+                const response = await fetch(apiUrl,{
+                    method:"GET",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+                });
+                if(response.status===401){
+                    alert("Your session has expired. Please log in again.");
+                    window.location.href="login.html";
+                    return;
+                }
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log(data);
+
+                if (data.length === 0) {
+                    alert("No attendance record found.");
+                    goBack();
+                } 
+                    const attendanceHTML = data.map((attendance) => `
+                        <div class="card">
+                            <div class="card-header">Member ID: ${attendance.memberId}</div>
+                            <div class="card-content">
+                                <p><span>Date:</span> ${attendance.todayDate}</p>
+                                <p><span>Check-In:</span> ${attendance.checkInTime}</p>
+                                <p><span>Check-Out:</span> ${attendance.checkOutTime}</p>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    attendanceList.innerHTML = attendanceHTML;
+                    
+                }
+                else {
+                    alert("Failed to retrieve attendance record.");
+                }
+                
+                backBtn.style.display = "inline-block";
+            }
+            catch (error) {
+                console.error("Error:", error);
+            }
+        };
+        function goBack() {
+            window.location.href = "viewweeklyattendance.html";
+        }
+    </script>
+    <script src="../JS/sessionStorage.js">
+     </script>
+</body>
+</html>

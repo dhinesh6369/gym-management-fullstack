@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Member Form</title>
+    <link rel="stylesheet" href="../CSS/form.css">
+</head>
+<body>
+    <form class="container" id="addMemberForm" onsubmit="formSubmit(event)" method="POST">
+        <h5 class="heading">Enter Member Details</h5>
+        <label for="firstName">Enter First Name:</label>
+        <input type="text" placeholder="Enter first name" id="firstName" required>
+        <span class="firstname-icon"></span> 
+
+        <label for="lastName">Enter Last Name:</label>
+        <input type="text" placeholder="Enter last name" id="lastName" required>
+        
+        <label for="email">Enter Email ID:</label>
+        <div class="input-container">
+            <input type="email" placeholder="Enter email id" id="email" required>
+            <span class="email-icon"></span>
+        </div>
+        
+        <label for="phoneNumber">Enter Phone Number:</label>
+        <div class="input-container">
+            <input type="tel" placeholder="Enter phone number" id="phoneNumber" required>
+            <span class="phone-icon"></span>
+        </div>
+        
+        <label for="startDate">Enter Start Date:</label>
+        <input type="date" id="startDate" required>
+        
+        <label for="endDate">Enter End Date:</label>
+        <input type="date" id="endDate" required>
+        <div class="btn-container">
+            <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+            <button type="submit">Submit</button>
+        </div>
+    </form>
+    
+
+    <script>
+        document.getElementById("firstName").addEventListener("input",function(event){
+            const nameField = event.target;
+            const firstNamePattern = /^[A-Za-z]{3,20}$/;
+            const firstNameIcon=document.querySelector(".firstname-icon");
+            if(nameField.value===""){
+                firstNameIcon.textContent="";
+                nameField.classList.remove('success', 'error');
+            }
+            else if (!firstNamePattern.test(nameField.value)) {
+                nameField.classList.add('error');
+                nameField.classList.remove('success');
+                firstNameIcon.textContent = "✖";
+                firstNameIcon.style.color = "red";
+            } else {
+                nameField.classList.remove('error');
+                nameField.classList.add('success');
+                firstNameIcon.textContent = '✔';
+                firstNameIcon.style.color = 'green';
+            }
+        });
+        document.getElementById("email").addEventListener("input", function(event) {
+            const emailField = event.target;
+            const emailPattern = /^[a-zA-Z0-9+._%+-]+@gmail\.com$/;
+            const statusIcon = document.querySelector(".email-icon");
+            
+            if (emailField.value === "") {
+                statusIcon.textContent = "";
+                emailField.classList.remove('success', 'error');
+            } else if (!emailPattern.test(emailField.value)) {
+                emailField.classList.add('error');
+                emailField.classList.remove('success');
+                statusIcon.textContent = "✖";
+                statusIcon.style.color = "red";
+            } else {
+                emailField.classList.remove('error');
+                emailField.classList.add('success');
+                statusIcon.textContent = '✔';
+                statusIcon.style.color = 'green';
+            }
+        });
+
+        document.getElementById("phoneNumber").addEventListener("input", function(event) {
+            const phoneNumberField = event.target;
+            const phoneNumberPattern = /^[0-9]{10}$/;
+            const statusIcon = document.querySelector(".phone-icon");
+            
+            if (phoneNumberField.value === "") {
+                statusIcon.textContent = "";
+                phoneNumberField.classList.remove("error", "success");
+                
+            } else if (!phoneNumberPattern.test(phoneNumberField.value)) {
+                phoneNumberField.classList.add("error");
+                phoneNumberField.classList.remove("success");
+                statusIcon.textContent = "✖";
+                statusIcon.style.color = "red";
+            } else {
+                phoneNumberField.classList.remove("error");
+                phoneNumberField.classList.add("success");
+                statusIcon.textContent = '✔';
+                statusIcon.style.color = "green";
+            }
+        });
+        function goBack() {
+            window.location.href = "gym.html";
+        }
+        document.getElementById("firstName").addEventListener("input", function() {
+            const firstNamePattern = /^[a-zA-Z]+$/;
+            if (!firstNamePattern.test(this.value)) {
+                this.setCustomValidity("Please enter only English alphabet letters.");
+            } else {
+                this.setCustomValidity("");
+            }
+        });
+
+        async function formSubmit(event) {
+            
+            event.preventDefault();
+            const startDate = new Date(document.getElementById("startDate").value);
+            const endDate = new Date(document.getElementById("endDate").value);
+
+            if (endDate <= startDate) {
+                alert("End date must be after the start date");
+                return false;
+            }
+            else{
+                const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    emailId: document.getElementById('email').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value
+                };
+            }
+            const formData = {
+                    firstName: document.getElementById('firstName').value,
+                    lastName: document.getElementById('lastName').value,
+                    emailId: document.getElementById('email').value,
+                    phoneNumber: document.getElementById('phoneNumber').value,
+                    startDate: document.getElementById('startDate').value,
+                    endDate: document.getElementById('endDate').value
+                };
+
+            try {
+                const response = await fetch("http://localhost:8081/api/addMember", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    },
+                    body: JSON.stringify(formData)
+                });
+                if(response.status===401){
+                    alert("Your session has expired. Please log in again.");
+                    window.location.href="login.html";
+                    return;
+                }
+                if (response.ok) {
+                    const responseData=await response.text()
+                    document.getElementById("addMemberForm").reset();
+                    document.getElementById("addMemberForm").style.display = 'block';
+                } else {
+                    const errorData = await response.text();
+                    alert(`Error: ${errorData.message || 'Error adding member.'}`);
+                }
+                
+                // location.reload()
+            } catch (error) {
+                console.error("Error:", error);
+                alert("An error occurred while adding the member. Please try again.");
+            }
+            window.location.href = "viewallmembertoadd.html";
+        }
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

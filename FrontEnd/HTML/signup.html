@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign up</title>
+    <link rel="stylesheet" href="../CSS/signup.css">
+</head>
+<body>
+    <form id="form-details" autocomplete="off" method="POST">
+        <div class="username-container">
+            <input type="text" id="username" placeholder="Username" required autocomplete="off">
+            <span class="statusIcon"></span>
+        </div>
+        <div class="password-container">
+            <input type="password" id="password" placeholder="Password" required autocomplete="off">
+            <span id="passwordIcon"></span>
+            <span id="togglePassword" class="toggle-icon">👁️</span>
+        </div>
+        <a href="login.html"  class="signup-btn" onclick="signUpAction(event)">Sign up</a>
+    </form>
+    <!-- <div class="signup">
+        <p>Have an account?</p>
+        <a href="login.html"><span class="signuptext">&nbsp;Log in</span></a>
+    </div> -->
+    <script>
+            const password=document.getElementById("password");
+            const togglePassword=document.getElementById("togglePassword");
+            
+
+            document.getElementById("password").addEventListener("input",function(event){
+                const passwordIcon=document.getElementById("passwordIcon");
+                const passwordPattern = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*])(?=.{8,})(?!.*\s).*$/;
+                if(password.value===""){
+                    passwordIcon.textContent = "";
+                    password.classList.remove('success', 'error');
+                }
+                else if(!passwordPattern.test(password.value)){
+                    password.classList.add('error')
+                    password.classList.remove('success')
+                    passwordIcon.textContent = "✖";
+                    passwordIcon.style.color = "red";
+                }
+                else {
+                    password.classList.remove('error');
+                    password.classList.add('success');
+                    passwordIcon.textContent = '✔';
+                    passwordIcon.style.color = 'green';
+                }
+            });
+
+            togglePassword.addEventListener("click",function(){
+                const type=password.getAttribute("type")==="password"?"text":"password";
+                password.setAttribute("type",type);
+                this.textContent=type==="password"?"👁️" : "🙈";
+            });
+
+            document.getElementById("username").addEventListener("input",function(event){
+            const userNameField = event.target;
+            const userNamePattern=/^[a-zA-Z][a-zA-Z0-9_]{2,20}$/;
+            const statusIcon=document.querySelector(".statusIcon");
+            if(userNameField.value===""){
+                statusIcon.textContent = "";
+                userNameField.classList.remove('success', 'error');
+            }
+            else if(!userNamePattern.test(userNameField.value)){
+                userNameField.classList.add('error')
+                userNameField.classList.remove('success')
+                statusIcon.textContent = "✖";
+                statusIcon.style.color = "red";
+                
+            }
+            else {
+                userNameField.classList.remove('error');
+                userNameField.classList.add('success');
+                statusIcon.textContent = '✔';
+                statusIcon.style.color = 'green';
+            }
+        });
+
+        
+        async function signUpAction(event) {
+    event.preventDefault();
+    
+    const userName = document.getElementById("username");
+    const password = document.getElementById("password").value;
+    const encryptedPassword = btoa(password);
+
+    if (!userName.value || !password) {
+        alert("Please fill in all required fields");
+        return;
+    }
+
+    else if (userName.value.length < 3) {
+        alert("Username must be at least 3 characters long");
+        return;
+    }
+
+    else if (password.length < 8 || !/[A-Z]/.test(password) || !/[!@#$%^&*(),.?":{}|<>]/.test(password)) {
+        alert("Password must be at least 8 characters long233");
+        return;
+    }
+
+
+    const data = { username: userName.value, userPassword: encryptedPassword };
+
+    try {
+        const apiUrl = `http://localhost:8081/api/registerUser`;
+        const response = await fetch(apiUrl, {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            window.location.href = "login.html";
+        } else {
+            const errorMsg = await response.text();
+            throw new Error("Error while registering user: " + errorMsg);
+        }
+    } catch (error) {
+        console.log("Error occurred:", error);
+        alert("An error occurred while creating your account. Please try again.");
+    }
+}
+
+    </script>
+</body>
+</html>

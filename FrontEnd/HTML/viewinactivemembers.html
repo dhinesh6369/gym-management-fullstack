@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/viewmember.css">
+    <title> Inactive members </title>
+</head>
+<body>
+    <div id="memberList"></div>
+    <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+    <div id="inactiveStatus"></div>
+    <script>
+        function goBack() {
+            window.location.href = "gym.html";
+        }
+        const getInActiveMembers=async()=>{
+            try{
+                const response=await fetch("http://localhost:8081/api/inactive",{
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+                });
+                const inactiveStatus=document.getElementById("inactiveStatus");
+                if(!response.ok)
+                {
+                    throw new Error("Error while getting inactive members");
+                    if(response.status===401){
+                        alert("Your session has expired. Please log in again.");
+                        window.location.href="login.html";
+                        return;
+                    }
+                }
+                const data=await response.json()
+                console.log(data);
+                if(data.length===0)
+                {
+                    inactiveStatus.textContent="Inactive status not found";
+                    inactiveStatus.style.color="red";
+                    inactiveStatus.style.fontSize="21px";
+                    inactiveStatus.style.marginLeft="800px";
+                    memberList.innerHTML="";
+                }
+                const memberList = data.map((member) => {
+                    return `<div class="card">
+                        <div class="card-header">Member ID: ${member.id}</div>
+                        <div class="card-content">
+                            <p><span>First Name:</span> ${member.firstName}</p>
+                            <p><span>Last Name:</span> ${member.lastName}</p>
+                            <p><span>Email:</span> ${member.emailId}</p>
+                            <p><span>Phone:</span> ${member.phoneNumber}</p>
+                            <p><span>Start Date:</span> ${member.startDate}</p>
+                            <p><span>End Date:</span> ${member.endDate}</p>
+                            <div class="card-status">Status: ${member.status}</div>
+                        </div>
+                    </div>`;
+                }).join('');  
+                document.getElementById("memberList").innerHTML = memberList;
+            }
+            catch(error)
+            {
+                console.log(error);
+            }
+        }
+        document.addEventListener("DOMContentLoaded",getInActiveMembers);
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

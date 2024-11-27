@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View Daily Attendance</title>        
+    <link rel="stylesheet" href="../CSS/viewdailyattendance.css">
+</head>
+<body>
+    <div class="div-container">
+        <form class="container" onsubmit="getDailyAttendance(event)">
+            <h3>Enter member details</h3>
+            <label>Enter member id :</label>
+            <input type="number" id="memberId" placeholder="Enter member id" required>
+            <button class="back-btn" onclick="goBack()">Back</button>
+            <button type="submit">Submit</button>
+        </form>     
+    </div>
+    <div id="attendanceList" style="display: none;">
+        
+    </div>
+    <button class="listBackBtn" onclick="goBackPage()">Back</button>
+    <script>
+        const getDailyAttendance = async (event) => {
+        event.preventDefault();
+        document.querySelector(".div-container").style.display = "none";
+        const attendanceList = document.getElementById("attendanceList");
+        const backBtn = document.getElementById("backBtn");
+        const container = document.querySelector(".container");
+
+        container.style.display = "none";
+        attendanceList.style.display = "";
+
+        try {
+            const memberId = document.getElementById("memberId").value;
+            const apiUrl = `http://localhost:8081/api/attendance/daily/${memberId}`;
+            const response = await fetch(apiUrl,{
+                method:"GET",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+            });
+            if(response.status===401){
+                alert("Your session has expired. Please log in again.");
+                window.location.href="login.html";
+                return;
+            }
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+
+
+                if (data.length === 0) {
+                    alert("No attendance record found.");
+                    document.querySelector(".container").style.display="block";
+                    document.querySelector(".div-container").style.backgroundColor="red";
+                } else {
+                    const attendanceHTML = data.map((attendance) => `
+                        <div class="card">
+                            <div class="card-header">Member ID: ${attendance.memberId}</div>
+                            <div class="card-content">
+                                <p><span>Date:</span> ${attendance.todayDate}</p>
+                                <p><span>Check-In Time:</span> ${attendance.checkInTime}</p>
+                                <p><span>Check-Out Time:</span> ${attendance.checkOutTime}</p>
+                            </div>
+                        </div>`).join('');
+                    
+                    attendanceList.innerHTML = attendanceHTML;
+                }
+            } else {
+            alert("Failed to retrieve attendance record.");
+            container.style.display = "";
+            attendanceList.style.display = "none";
+        }
+        
+    } catch (error) {
+        console.error("Error:", error);
+        alert("An error occurred while fetching attendance data.");
+        container.style.display = ""; 
+        attendanceList.style.display = "none";
+        backBtn.style.display="none"
+    }
+};
+
+
+        function goBackPage() {
+            window.location.href = "viewdailyattendance.html";
+        }
+        function goBack() {
+            window.location.href = "gym.html";
+        }
+
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deletion</title>
+    <link rel="stylesheet" href="../CSS/form.css">
+</head>
+<body>
+    <form class="container" onsubmit="submitFunction(event)">
+        <h4>Enter member details</h4>
+        <label>Enter member Id :</label>
+        <input type="number" id="memberId" placeholder="Enter member id" required>
+        <button onclick="goBack()">Back</button>
+        <button>Submit</button>
+    </form>
+    <script>
+        function goBack(){
+            window.location.href="gym.html";
+        }
+        async function submitFunction(event){
+            event.preventDefault();
+            const memberId=document.getElementById("memberId").value;
+            const apiUrl=`http://localhost:8081/api/delete/${memberId}`;
+        try{
+            const response=await fetch(apiUrl,{
+                method:"DELETE",
+                headers:{
+                    "Content-Type": "application/json",
+                    "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                }
+            });
+            const result=await response.json();
+            if(response.status===401){
+                alert("Your session has expired. Please log in again.");
+                window.location.href="login.html";
+                return;
+            }
+            if(response.ok){
+                alert(result.message);
+                window.location.reload();
+            }
+            else{
+                alert(result.message);
+            }
+        }
+        catch(error){
+            alert("Error");
+        }
+    }
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

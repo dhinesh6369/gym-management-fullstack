@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Membership</title>
+    <link rel="stylesheet" href="../CSS/form.css">
+</head>
+<body>
+    <form class="container" onsubmit="formSubmission(event)">
+        <h5 class="heading">Enter Member Details</h5>
+        <label>Enter member id:</label>
+        <input type="number" id="memberId" placeholder="Enter member id " required>
+        <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        async function formSubmission(event) {
+            event.preventDefault();
+            
+            const memberId = document.getElementById("memberId").value;
+            const apiUrl = `http://localhost:8081/api/cancel/${memberId}`;
+                                 
+            try {
+                const response = await fetch(apiUrl, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+                });
+
+                if (response.ok) {
+                    document.querySelector(".container").style.display = "none";
+                    alert("membership cancelled successfully !");
+                    document.querySelector(".container").style.display = "block";
+                    document.getElementById("memberId").value = "";
+                } else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Error cancel membership.'}`);
+                }
+                if(response.status===401){
+                    alert("Your session has expired. Please log in again.");
+                    window.location.href="login.html";
+                    return;
+                }
+            } catch (error) {
+                console.error("Network error:", error);
+            }
+        }
+        function goBack() {
+            window.location.href = "gym.html";
+        }
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

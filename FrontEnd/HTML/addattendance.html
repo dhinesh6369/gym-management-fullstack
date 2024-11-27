@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add attendance</title>
+    <link rel="stylesheet" href="../CSS/form.css">
+
+
+</head>
+<body>
+    <form class="container" id="addAttendanceForm" method="POST">
+        <h5 class="heading">Enter Attendance Details</h5>
+        <label>Enter member id : </label>
+        <input type="number" placeholder="Enter member id" id="memberId" required>
+
+        <label>Enter date : </label>
+        <input type="date" id="date" placeholder="Enter date">
+        <label>Enter check-in time : </label>
+        <input type="time" id="checkInTime">
+        <label>Enter check-out time : </label>
+        <input type="time" id="checkOutTime">
+        <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+        <button type="submit" onclick="formSubmit()">Submit</button>
+    </form>
+    <script>
+        function goBack() {
+            window.location.href = "gym.html";
+        }
+        document.getElementById("memberId").addEventListener("blur", async function(event) {
+        const memberIdField = event.target;
+        const memberId = memberIdField.value;
+
+        if (!memberId) {
+            memberIdField.style.borderColor = "";
+            return;
+        }
+        try {
+            const response = await fetch(`http://localhost:8081/api/getMemberById/${memberId}`,{
+                method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+            });
+            
+            if (response.ok) {
+                memberIdField.style.borderColor = "green";
+            } else if (response.status === 404) {
+                memberIdField.style.borderColor = "red";
+            } else {
+                console.error("Unexpected response from server");
+            }
+            
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    });
+
+        async function formSubmit(){
+            event.preventDefault(); 
+            const formData={
+                memberId:document.getElementById("memberId").value,
+                todayDate:document.getElementById("date").value,
+                checkInTime:document.getElementById("checkInTime").value,
+                checkOutTime:document.getElementById("checkOutTime").value
+            };
+            console.log(formData)
+            try{
+                const apiUrl="http://localhost:8081/api/addAttendance";
+                const response=await fetch(apiUrl,{
+                    method:"POST",
+                    headers:{
+                        "Content-Type":"application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    },
+                    body:JSON.stringify(formData)
+                });
+                if(response.status===401){
+                    alert("Your session has expired. Please log in again.");
+                    window.location.href="login.html";
+                    return;
+                }
+                if(response.ok)
+                {
+                    document.getElementById("addAttendanceForm").reset();
+                    alert("Attendance added successfully!");
+                    window.location.href="addattendance.html"
+                }
+                else {
+                    const errorData = await response.json();
+                    alert(`Error: ${errorData.message || 'Error adding attendance'}`);
+                }
+            }
+            catch(error)
+            {
+                console.log(error)
+            }
+        }
+        
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>

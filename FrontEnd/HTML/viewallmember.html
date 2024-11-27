@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../CSS/viewmember.css">
+    <title>view all members</title>
+</head>
+<body>
+    <div id="memberList">
+    </div>
+    <button id="backBtn" class="back-btn" onclick="goBack()">Back</button>
+    <div id="message"></div>
+    <script>
+        const message=document.getElementById("message")
+        function goBack(){
+            window.location.href="gym.html";
+        }
+        const getAllMembers=async()=>{
+            try{
+                const response= await fetch("http://localhost:8081/api/viewallmembers",{
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":`Bearer ${localStorage.getItem("userToken")}`
+                    }
+                });
+                
+                if(!response.ok){
+                    throw new error("Error while fetching members");
+                }
+                const data=await response.json();
+                console.log(data)
+                if(data.length === 0){
+                    message.textContent="No member record found";
+                }
+                const memberList=data.map((member)=>{
+                    return `<div class="card">
+                <div class="card-header">Member ID: ${member.id}</div>
+                <div class="card-content">
+                    <p><span>firstName:</span> ${member.firstName}</p>
+                    <p><span>secondName:</span> ${member.lastName}</p>
+                    <p><span>Email:</span> ${member.emailId}</p>
+                    <p><span>Phone:</span> ${member.phoneNumber}</p>
+                    <p><span>Start Date:</span> ${member.startDate} </p>
+                    <p><span>End Date:</span> ${member.endDate}</p>
+                    <div class="card-status">${member.status}</div>
+                </div>
+            </div>`
+                }).join('');
+
+                document.getElementById("memberList").innerHTML=memberList;
+            }catch(error){
+                console.log(error)
+            }
+        }
+        document.addEventListener("DOMContentLoaded",getAllMembers)
+    </script>
+    <script src="../JS/sessionStorage.js">
+    </script>
+</body>
+</html>
